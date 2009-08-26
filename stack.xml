@@ -8,5 +8,9 @@
   <license>BSD</license>  
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/laser_pipeline</url>
+  <depend stack="geometry"/> <!-- tf, angles --> 
+  <depend stack="ros"/> <!-- roscpp --> 
+  <depend stack="common"/> <!-- filters --> 
+  <depend stack="common_msgs"/> <!-- sensor_msgs --> 
 
 </stack>
