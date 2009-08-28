@@ -48,7 +48,7 @@
 
 // Messages
 #include "sensor_msgs/LaserScan.h"
-#include "mechanism_msgs/MechanismState.h"
+#include "pr2_mechanism_msgs/MechanismState.h"
 #include "calibration_msgs/DenseLaserSnapshot.h"
 
 #define CONSTRUCT_INT(param, default_val) \
@@ -137,7 +137,7 @@ public:
   void processLaserScan(const sensor_msgs::LaserScanConstPtr& msg) ;
 
   //! \brief Not yet implemented
-  void processMechState(const mechanism_msgs::MechanismState& msg) ;
+  void processMechState(const pr2_mechanism_msgs::MechanismState& msg) ;
 
   //! \brief Get what the oldest time processed scan is
   ros::Time getOldestScanTime() ;

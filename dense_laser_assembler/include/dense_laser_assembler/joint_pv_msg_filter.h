@@ -50,7 +50,7 @@
 
 // Messages
 #include "dense_laser_assembler/JointPVArray.h"
-#include "mechanism_msgs/MechanismState.h"
+#include "pr2_mechanism_msgs/MechanismState.h"
 
 namespace dense_laser_assembler
 {
@@ -109,7 +109,7 @@ public:
    * Also calls all the callback functions as set by connect()
    * \param msg The MechanismState message from which we want to extract positions
    */
-  void processMechState(const mechanism_msgs::MechanismStateConstPtr& msg)
+  void processMechState(const pr2_mechanism_msgs::MechanismStateConstPtr& msg)
   {
     // Allocate mem to store out output data
     boost::shared_ptr<JointPVArray> joint_array_ptr(new JointPVArray) ;

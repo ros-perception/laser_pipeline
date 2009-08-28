@@ -115,7 +115,7 @@ private:
   ros::Publisher snapshot_pub_ ;
   ros::Subscriber signal_sub_ ;
   message_filters::Subscriber<sensor_msgs::LaserScan> scan_sub_ ;
-  message_filters::Subscriber<mechanism_msgs::MechanismState> mech_state_sub_ ;
+  message_filters::Subscriber<pr2_mechanism_msgs::MechanismState> mech_state_sub_ ;
   DenseLaserMsgFilter dense_laser_filter_ ;
   pr2_msgs::LaserScannerSignal prev_signal_;
 
