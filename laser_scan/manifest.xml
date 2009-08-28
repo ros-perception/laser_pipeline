@@ -13,6 +13,7 @@ Helper functions for manipulating Lasers Scans
 <depend package="tf"/>
 <depend package="filters"/>
 <depend package="angles"/>
+<depend package="message_filters"/>
 <export>
 <cpp cflags="-I${prefix}/include -I${prefix}/msg/cpp" lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -llaser_scan -llaser_processor"/>
 <filters plugin="${prefix}/laser_scan_plugins.xml"/>
