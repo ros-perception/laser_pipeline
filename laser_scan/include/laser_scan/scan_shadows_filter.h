@@ -122,9 +122,10 @@ public:
       for (int y = -window_; y < window_ + 1; y++)
       {
         int j = i + y;
-        if ( j < 0 || j >= (int)scan_in.ranges.size () || (int)i == j ) // Out of scan bounds or itself
+        if ( j < 0 || j >= (int)scan_in.ranges.size () || (int)i == j ){ // Out of scan bounds or itself
           continue;
-          
+	}
+
         double angle = abs(angles::to_degrees(getAngleWithViewpoint (scan_in.ranges[i],scan_in.ranges[j], y * scan_in.angle_increment)));
         if (angle < min_angle_ || angle > max_angle_) 
         {
@@ -138,7 +139,7 @@ public:
       }
     }
 
-    ROS_DEBUG("ScanShadowsFilter removing %d Points from scan", (int)indices_to_delete.size());
+    ROS_DEBUG("ScanShadowsFilter removing %d Points from scan with min angle: %.2f, max angle: %.2f, neighbors: %d, and window: %d", (int)indices_to_delete.size(), min_angle_, max_angle_, neighbors_, window_);
     for ( std::set<int>::iterator it = indices_to_delete.begin(); it != indices_to_delete.end(); ++it)
       {
 	scan_out.ranges[*it] = -1.0 * fabs(scan_in.ranges[*it]); //Failed test so set the ranges to invalid value
