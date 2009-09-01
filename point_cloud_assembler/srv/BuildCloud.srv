@@ -1,4 +1,0 @@
-time begin
-time end
----
-sensor_msgs/PointCloud cloud
