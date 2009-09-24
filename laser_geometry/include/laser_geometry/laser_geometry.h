@@ -42,58 +42,202 @@
 #include "sensor_msgs/PointCloud.h"
 #include "sensor_msgs/PointCloud.h"
 
-/* \mainpage
- * This is a class for laser scan utilities.
- * \todo The first goal will be to project laser scans into point clouds efficiently.
- * The second goal is to provide median filtering.
- * \todo Other potential additions are upsampling and downsampling algorithms for the scans.
- */
+#if defined(__GNUC__)
+#define DEPRECATED __attribute__((deprecated))
+#else
+#define DEPRECATED
+#endif
 
 namespace laser_geometry
 {
+  namespace channel_option
+  {
+  //! Enumerated output channels options.
+  /*!
+   * An OR'd set of these options is passed as the final argument of
+   * the projectLaser and transformLaserScanToPointCloud calls to
+   * enable generation of the appropriate set of additional channels.
+   */
+    enum ChannelOption
+      {
+        Intensity = 0x01, //!< Enable "intensities" channel
+        Index     = 0x02, //!< Enable "index" channel
+        Distance  = 0x04, //!< Enable "distances" channel
+        Timestamp = 0x08, //!< Enable "stamps" channel
+        Default   = (Intensity | Index) //!< Enable "intensities" and "stamps" channels
+      };
+  }
 
-  /** \brief Define masks for output channels */
-  const int MASK_INTENSITY = 0x01;
-  const int MASK_INDEX     = 0x02;
-  const int MASK_DISTANCE  = 0x04;
-  const int MASK_TIMESTAMP = 0x08;
-  const int DEFAULT_MASK   = (MASK_INTENSITY | MASK_INDEX);
+  DEPRECATED const int MASK_INTENSITY = channel_option::Intensity;
+  DEPRECATED const int MASK_INDEX     = channel_option::Index;
+  DEPRECATED const int MASK_DISTANCE  = channel_option::Distance;
+  DEPRECATED const int MASK_TIMESTAMP = channel_option::Timestamp;
+  DEPRECATED const int DEFAULT_MASK   = (channel_option::Intensity | channel_option::Index);
+  
 
-  /** \brief A Class to Project Laser Scan
-   * This class will project laser scans into point clouds, and caches unit vectors
-   * between runs so as not to need to recalculate.
+  //! \brief A Class to Project Laser Scan
+  /*!
+   * This class will project laser scans into point clouds.  It caches
+   * unit vectors between runs (provided the angular resolution of
+   * your scanner is not changing) to avoid excess computation.
+   *
+   * By default all range values less than the scanner min_range, and
+   * greater than the scanner max_range are removed from the generated
+   * point cloud, as these are assumed to be invalid.
+   * 
+   * If it is important to preserve a mapping between the index of
+   * range values and points in the cloud, the recommended approach is
+   * to pre-filter your laser_scan message to meet the requiremnt that all
+   * ranges are between min and max_range.
+   *
+   * The generated PointClouds have a number of channels which can be enabled
+   * through the use of ChannelOption.
+   * - channel_option::Intensity - Create a channel named "intensities" with the intensity of the return for each point
+   * - channel_option::Index - Create a channel named "index" containing the index from the original array for each point
+   * - channel_option::Distance - Create a channel named "distances" containing the distance from the laser to each point
+   * - channel_option::Timestamp - Create a channel named "stamps" containing the specific timestamp at which each point was measured
    */
   class LaserProjection
     {
+
     public:
-      /** \brief Destructor to deallocate stored unit vectors */
+
+      //! Destructor to deallocate stored unit vectors
       ~LaserProjection();
 
-      /** \brief Project Laser Scan
-       * This will project a laser scan from a linear array into a 3D point cloud
+      
+
+      //! Project a sensor_msgs::LaserScan into a sensor_msgs::PointCloud
+      /*!
+       * Project a single laser scan from a linear array into a 3D
+       * point cloud.  The generated cloud will be in the same frame
+       * as the original laser scan.
+       *
        * \param scan_in The input laser scan
-       * \param cloudOut The output point cloud
-       * \param range_cutoff An additional range cutoff which can be applied which is more limiting than max_range in the scan.
-       * \param preservative Default: false  If true all points in scan will be projected, including out of range values.  Otherwise they will not be added to the cloud.
+       * \param cloud_out The output point cloud
+       * \param range_cutoff An additional range cutoff which can be
+       *   applied which is more limiting than max_range in the scan.
+       * \param channel_option An OR'd set of channels to include.
+       *   Options include: channel_option::Default,
+       *   channel_option::Intensity, channel_option::Index,
+       *   channel_option::Distance, channel_option::Timestamp.
        */
-      void projectLaser (const sensor_msgs::LaserScan& scan_in, sensor_msgs::PointCloud & cloud_out, double range_cutoff=-1.0, bool preservative = false, int mask = DEFAULT_MASK);
+      void projectLaser (const sensor_msgs::LaserScan& scan_in,
+                         sensor_msgs::PointCloud& cloud_out,
+                         double range_cutoff = -1.0,
+                         int channel_options = channel_option::Default)
+      {
+        return projectLaser_ (scan_in, cloud_out, range_cutoff, false, channel_options);
+      }
 
+      //! Transform a sensor_msgs::LaserScan into a sensor_msgs::PointCloud in target frame
+      /*!
+       * Transform a single laser scan from a linear array into a 3D
+       * point cloud, accounting for movement of the laser over the
+       * course of the scan.  In order for this transform to be
+       * meaningful at a single point in time, the target_frame must
+       * be a fixed reference frame.  See the tf documentation for
+       * more information on fixed frames.
+       *
+       * \param target_frame The frame of the resulting point cloud
+       * \param scan_in The input laser scan
+       * \param cloud_out The output point cloud
+       * \param tf a tf::Transformer object to use to perform the
+       *   transform
+       * \param channel_option An OR'd set of channels to include.
+       *   Options include: channel_option::Default,
+       *   channel_option::Intensity, channel_option::Index,
+       *   channel_option::Distance, channel_option::Timestamp.
+       */
+      void transformLaserScanToPointCloud (const std::string& target_frame,
+                                           const sensor_msgs::LaserScan& scan_in,
+                                           sensor_msgs::PointCloud& cloud_out,
+                                           tf::Transformer& tf,
+                                           int channel_options = channel_option::Default)
+      {
+        return transformLaserScanToPointCloud_ (target_frame, cloud_out, scan_in, tf, channel_options, false);
+      }
 
-      /** \brief Transform a sensor_msgs::LaserScan into a PointCloud in target frame */
-      void transformLaserScanToPointCloud (const std::string& target_frame, sensor_msgs::PointCloud & cloudOut, const sensor_msgs::LaserScan & scanIn, tf::Transformer & tf, int mask = DEFAULT_MASK, bool preservative = false);
+      //! Deprecated version of projectLaser
+      /*!
+       *  - The preservative argument has been removed.
+       */
+      DEPRECATED
+      void projectLaser (const sensor_msgs::LaserScan& scan_in,
+                         sensor_msgs::PointCloud & cloud_out,
+                         double range_cutoff,
+                         bool preservative,
+                         int channel_options = channel_option::Default)
+      {
+        return projectLaser_ (scan_in, cloud_out, range_cutoff, preservative, channel_options);
+      }
 
-      /** \brief Return the unit vectors for this configuration
-       * Return the unit vectors for this configuration. 
-       * These are dynamically generated and allocated on first request
-       * and will be valid until destruction of this node. */
-      const boost::numeric::ublas::matrix<double>& getUnitVectors(float angle_max, float angle_min, float angle_increment, unsigned int length);
+      //! Deprecated version of projectLaser
+      /*!
+       *  - The preservative argument has been removed. 
+       *  - The ordering of cloud_out and scan_in have been reversed
+       */
+      DEPRECATED
+      void transformLaserScanToPointCloud (const std::string& target_frame,
+                                           sensor_msgs::PointCloud & cloud_out,
+                                           const sensor_msgs::LaserScan& scan_in,
+                                           tf::Transformer & tf,
+                                           int channel_options = channel_option::Default,
+                                           bool preservative = false)
+      {
+        return transformLaserScanToPointCloud_ (target_frame, cloud_out, scan_in, tf, channel_options, preservative);
+      }
+
+      //! Deprecated version of getUnitVectors
+      /*!
+       *  - This is now assumed to be an internal, protected API.  Do not call externally.
+       */
+      DEPRECATED
+      const boost::numeric::ublas::matrix<double>& getUnitVectors(float angle_min,
+                                                                   float angle_max,
+                                                                   float angle_increment,
+                                                                   unsigned int length)
+      {
+        return getUnitVectors_(angle_min, angle_max, angle_increment, length);
+      }
+
+    protected:
+
+      //! Internal protected representation of getUnitVectors
+      /*!
+       * This function should not be used by external users, however,
+       * it is left protected so that test code can evaluate it
+       * appropriately.
+       */
+      const boost::numeric::ublas::matrix<double>& getUnitVectors_(float angle_min,
+                                                                   float angle_max,
+                                                                   float angle_increment,
+                                                                   unsigned int length);
 
     private:
 
-      ///The map of pointers to stored values
+      //! Internal hidden representation of projectLaser
+      void projectLaser_ (const sensor_msgs::LaserScan& scan_in,
+                          sensor_msgs::PointCloud& cloud_out,
+                          double range_cutoff,
+                          bool preservative,
+                          int channel_options);
+
+      //! Internal hidden representation of transformLaserScanToPointCloud
+      void transformLaserScanToPointCloud_ (const std::string& target_frame,
+                                            sensor_msgs::PointCloud& cloud_out,
+                                            const sensor_msgs::LaserScan& scan_in,
+                                            tf::Transformer & tf,
+                                            int channel_options,
+                                            bool preservative);
+
+      //! Internal map of pointers to stored values
       std::map<std::string,boost::numeric::ublas::matrix<double>* > unit_vector_map_;
 
     };
 
 }
+
+#undef DEPRECATED
+
 #endif //LASER_SCAN_UTILS_LASERSCAN_H

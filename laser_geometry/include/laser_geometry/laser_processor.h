@@ -32,10 +32,6 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 *********************************************************************/
 
-/*! \mainpage
- *  \htmlinclude manifest.html
- */
-
 //! A namespace containing the laser processor helper classes
 
 
@@ -44,7 +40,6 @@
 
 #include <unistd.h>
 #include <math.h>
-#include "ros/node.h"
 #include "sensor_msgs/LaserScan.h"
 #include "sensor_msgs/PointCloud.h"
 #include "geometry_msgs/Point.h"
