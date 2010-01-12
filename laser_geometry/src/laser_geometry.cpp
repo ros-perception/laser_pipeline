@@ -150,7 +150,7 @@ namespace laser_geometry
       cloud_out.channels[d].set_values_size(count);
   };
 
-const boost::numeric::ublas::matrix<double>& LaserProjection::getUnitVectors_(float angle_min, float angle_max, float angle_increment, unsigned int length)
+const boost::numeric::ublas::matrix<double>& LaserProjection::getUnitVectors_(double angle_min, double angle_max, double angle_increment, unsigned int length)
   {
     //construct string for lookup in the map
     std::stringstream anglestring;
@@ -252,9 +252,9 @@ const boost::numeric::ublas::matrix<double>& LaserProjection::getUnitVectors_(fl
     ros::Time start_time = scan_in.header.stamp ;
     ros::Time end_time   = scan_in.header.stamp + ros::Duration().fromSec(scan_in.get_ranges_size()*scan_in.time_increment) ;
 
-    tf::Stamped<tf::Transform> start_transform ;
-    tf::Stamped<tf::Transform> end_transform ;
-    tf::Stamped<tf::Transform> cur_transform ;
+    tf::StampedTransform start_transform ;
+    tf::StampedTransform end_transform ;
+    tf::StampedTransform cur_transform ;
 
     tf.lookupTransform(target_frame, scan_in.header.frame_id, start_time, start_transform) ;
     tf.lookupTransform(target_frame, scan_in.header.frame_id, end_time, end_transform) ;
