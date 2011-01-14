@@ -1,0 +1,17 @@
+<stack>
+  <description brief="laser_pipeline">
+
+     Libraries from processing laser data, including converting laser data into 3D representations.
+
+  </description>
+  <author>Maintained by Jeremy Leibs</author>
+  <license>BSD</license>  
+  <review status="Doc reviewed" notes="09/29/2009"/>
+  <url>http://ros.org/wiki/laser_pipeline</url>
+  <depend stack="common" /> <!-- filters, pluginlib -->
+  <depend stack="common_msgs" /> <!-- sensor_msgs, geometry_msgs -->
+  <depend stack="geometry" /> <!-- tf, angles -->
+  <depend stack="ros" />
+  <depend stack="ros_comm" /> <!-- std_msgs, roscpp, message_filters -->
+
+</stack>
