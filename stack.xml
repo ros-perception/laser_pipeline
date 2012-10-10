@@ -1,5 +1,4 @@
 <stack>
-  <name>laser_pipeline</name>
   <description brief="laser_pipeline">
      Meta-package of libraries for processing laser data, including converting laser data into 3D representations.
   </description>
