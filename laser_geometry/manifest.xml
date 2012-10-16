@@ -18,7 +18,7 @@ for the skew resulting from moving robots or tilting laser scanners.
 <depend package="common_rosdeps" />
 <rosdep name="eigen" />
 <export>
-<cpp cflags="-I${prefix}/include" lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -llaser_geometry"/>
+<cpp cflags="`pkg-config --cflags eigen3` -I${prefix}/include" lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -llaser_geometry"/>
 </export>
   <platform os="ubuntu" version="9.04"/>
   <platform os="ubuntu" version="9.10"/>
