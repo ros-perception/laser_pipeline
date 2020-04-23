@@ -1,6 +1,6 @@
 <package>
   <name>laser_pipeline</name>
-  <version>1.6.3</version>
+  <version>1.6.4</version>
   <description>
       Meta-package of libraries for processing laser data, including converting laser data
       into 3D representations.
